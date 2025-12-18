@@ -6,8 +6,14 @@ import { createClient } from '@supabase/supabase-js';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-export const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY) 
-  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) 
+console.log('Supabase Config:', {
+  URL: SUPABASE_URL,
+  HasKey: !!SUPABASE_ANON_KEY,
+  KeyLen: SUPABASE_ANON_KEY?.length
+});
+
+export const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY)
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
 
 // Mock Service for Demo Mode (since user likely won't have keys immediately)

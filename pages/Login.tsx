@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { mockAuthService } from '../services/supabase';
+import { supabase } from '../services/supabase';
 import { Button } from '../components/ui/Button';
 import { ArrowRight, Lock } from 'lucide-react';
 import { UserProfile } from '../types';
@@ -12,20 +11,54 @@ interface LoginProps {
 export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
-  
-  // For demo convenience, we allow user to toggle intended role
-  const [selectedRole, setSelectedRole] = useState<'admin' | 'reseller'>('reseller');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     try {
-      // Simulate API call
-      const { user } = await mockAuthService.login(email || 'demo@technolease.com', selectedRole);
+      if (!supabase) {
+        throw new Error('Supabase client is not initialized. Check your .env setup.');
+      }
+
+      // 1. Sign in with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError) throw authError;
+      if (!authData.user) throw new Error('No user data returned');
+
+      // 2. Fetch User Profile for Role
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', authData.user.id)
+        .single();
+
+      if (profileError) {
+        // If profile doesn't exist, this is a critical data integrity issue or a new user that hasn't been set up
+        console.error('Error fetching profile:', profileError);
+        throw new Error('User profile not found. Please contact support.');
+      }
+
+      // 3. Construct User Object
+      const user: UserProfile = {
+        id: authData.user.id,
+        email: authData.user.email!,
+        role: profile.role, // 'admin' | 'reseller'
+        name: profile.full_name
+      };
+
       onLogin(user);
-    } catch (error) {
-      console.error(error);
+
+    } catch (err: any) {
+      console.error('Login failed:', err);
+      setError(err.message || 'Failed to sign in');
     } finally {
       setLoading(false);
     }
@@ -47,36 +80,35 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
         <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 p-8 rounded-2xl shadow-2xl">
           <form onSubmit={handleLogin} className="space-y-6">
+
+            {error && (
+              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-sm">
+                {error}
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-medium text-zinc-400 mb-2">Email Address</label>
-              <input 
-                type="email" 
+              <input
+                type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="enter@technolease.com"
+                required
                 className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder-zinc-700"
               />
             </div>
 
-            {/* Role Selection for Demo */}
-            <div className="p-4 bg-zinc-950/30 rounded-lg border border-zinc-800/50">
-              <span className="block text-xs font-semibold text-zinc-500 uppercase mb-3">Select Demo Role</span>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedRole('admin')}
-                  className={`flex-1 py-2 text-sm rounded-md transition-all ${selectedRole === 'admin' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
-                >
-                  Admin
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedRole('reseller')}
-                  className={`flex-1 py-2 text-sm rounded-md transition-all ${selectedRole === 'reseller' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
-                >
-                  Reseller
-                </button>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-zinc-400 mb-2">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all placeholder-zinc-700"
+              />
             </div>
 
             <Button type="submit" isLoading={loading} className="w-full group">
