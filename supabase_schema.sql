@@ -18,11 +18,22 @@ create policy "Users can view own profile" on profiles
   for select using (auth.uid() = id);
 
 -- RLS: Admins can view all profiles
+-- Helper function to check if user is admin (Bypasses RLS to avoid recursion)
+create or replace function public.is_admin()
+returns boolean as $$
+begin
+  return exists (
+    select 1 from profiles
+    where id = auth.uid()
+    and role = 'admin'
+  );
+end;
+$$ language plpgsql security definer;
+
+-- RLS: Admins can view all profiles
 create policy "Admins can view all profiles" on profiles
   for select using (
-    exists (
-      select 1 from profiles where id = auth.uid() and role = 'admin'
-    )
+    is_admin()
   );
 
 -- 2. KITS TABLE
@@ -30,6 +41,13 @@ create table kits (
   id uuid default uuid_generate_v4() primary key,
   name text not null,
   description text,
+  deal_code text,
+  marketing_description text,
+  rental_price numeric,
+  rental_term text,
+  hero_image_url text,
+  detail1_image_url text,
+  detail2_image_url text,
   status text default 'active',
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
@@ -158,3 +176,53 @@ $$ language plpgsql security definer;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- STORAGE POLICIES (Run these in SQL Editor after creating 'kit-images' bucket)
+-- 1. Allow public access to view images
+create policy "Public Access"
+on storage.objects for select
+using ( bucket_id = 'kit-images' );
+
+-- 2. Allow authenticated users to upload images
+create policy "Authenticated users can upload"
+on storage.objects for insert
+with check (
+  auth.role() = 'authenticated' AND
+  bucket_id = 'kit-images'
+);
+
+-- 3. Allow users to update their own images (or admins to update any)
+create policy "Users can update own images"
+on storage.objects for update
+using (
+  auth.uid() = owner OR
+  (select count(*) from profiles where id = auth.uid() and role = 'admin') > 0
+);
+
+-- 6. RESELLER APPLICATIONS (Pipeline)
+create table reseller_applications (
+  id uuid default uuid_generate_v4() primary key,
+  company_name text not null,
+  applicant_name text not null,
+  email text not null,
+  phone text,
+  status text check (status in ('new', 'contacted', 'reviewing', 'approved', 'rejected')) default 'new',
+  notes text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Enable RLS
+alter table reseller_applications enable row level security;
+
+-- POLICIES
+-- Admins can view/update all applications
+create policy "Admins can do everything on reseller_applications" on reseller_applications
+  for all using (
+    exists (
+      select 1 from profiles where id = auth.uid() and role = 'admin'
+    )
+  );
+
+-- Service Role (for external form) or Public (if form is unauthed) needs insert access
+create policy "Public can submit applications" on reseller_applications
+  for insert with check (true);

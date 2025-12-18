@@ -23,7 +23,7 @@ export const AdminDashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <p className="text-zinc-400 text-sm font-medium">Total Revenue</p>
-          <p className="text-3xl font-bold text-white mt-2">${MOCK_STATS_ADMIN.totalRevenue.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-white mt-2">R{MOCK_STATS_ADMIN.totalRevenue.toLocaleString()}</p>
           <div className="text-green-500 text-xs mt-2 flex items-center">+12.5% vs last month</div>
         </Card>
         <Card>
@@ -50,9 +50,9 @@ export const AdminDashboard: React.FC = () => {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
-                <XAxis dataKey="name" stroke="#52525b" tick={{fill: '#71717a'}} axisLine={false} tickLine={false} />
-                <YAxis stroke="#52525b" tick={{fill: '#71717a'}} axisLine={false} tickLine={false} tickFormatter={(value) => `$${value}`} />
-                <Tooltip 
+                <XAxis dataKey="name" stroke="#52525b" tick={{ fill: '#71717a' }} axisLine={false} tickLine={false} />
+                <YAxis stroke="#52525b" tick={{ fill: '#71717a' }} axisLine={false} tickLine={false} tickFormatter={(value) => `R${value}`} />
+                <Tooltip
                   contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', color: '#f4f4f5' }}
                   itemStyle={{ color: '#f4f4f5' }}
                 />
@@ -67,10 +67,10 @@ export const AdminDashboard: React.FC = () => {
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data}>
-                 <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
-                <XAxis dataKey="name" stroke="#52525b" tick={{fill: '#71717a'}} axisLine={false} tickLine={false} />
-                <Tooltip 
-                  cursor={{fill: '#27272a', opacity: 0.4}}
+                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                <XAxis dataKey="name" stroke="#52525b" tick={{ fill: '#71717a' }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  cursor={{ fill: '#27272a', opacity: 0.4 }}
                   contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', color: '#f4f4f5' }}
                 />
                 <Bar dataKey="revenue" fill="#3f3f46" radius={[4, 4, 0, 0]} />

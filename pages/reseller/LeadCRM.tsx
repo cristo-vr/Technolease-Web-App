@@ -6,7 +6,7 @@ import { MoreHorizontal, Mail, Phone } from 'lucide-react';
 export const LeadCRM: React.FC = () => {
   return (
     <div className="space-y-8">
-       <div>
+      <div>
         <h2 className="text-3xl font-bold tracking-tight text-white">Lead CRM</h2>
         <p className="text-zinc-400">Manage your pipeline and client relationships.</p>
       </div>
@@ -30,13 +30,13 @@ export const LeadCRM: React.FC = () => {
                 <td className="px-6 py-4">{lead.company}</td>
                 <td className="px-6 py-4">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border
-                    ${lead.status === 'new' ? 'bg-blue-900/20 text-blue-400 border-blue-900/50' : 
+                    ${lead.status === 'new' ? 'bg-blue-900/20 text-blue-400 border-blue-900/50' :
                       lead.status === 'closed' ? 'bg-green-900/20 text-green-400 border-green-900/50' :
-                      'bg-zinc-800 text-zinc-300 border-zinc-700'}`}>
+                        'bg-zinc-800 text-zinc-300 border-zinc-700'}`}>
                     {lead.status.toUpperCase()}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-white">${lead.value.toLocaleString()}</td>
+                <td className="px-6 py-4 text-white">R{lead.value.toLocaleString()}</td>
                 <td className="px-6 py-4">{lead.lastContact}</td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex justify-end gap-2">

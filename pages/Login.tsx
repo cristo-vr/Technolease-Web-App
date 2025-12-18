@@ -33,12 +33,16 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
       if (authError) throw authError;
       if (!authData.user) throw new Error('No user data returned');
 
+      console.log('Current User ID:', authData.user.id);
+
       // 2. Fetch User Profile for Role
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', authData.user.id)
         .single();
+
+      console.log('Profile Query Result:', { profile, profileError });
 
       if (profileError) {
         // If profile doesn't exist, this is a critical data integrity issue or a new user that hasn't been set up

@@ -4,25 +4,28 @@ import { Login } from './pages/Login';
 import { Layout } from './components/Layout';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { KitManagement } from './pages/admin/KitManagement';
+import { ResellersList } from './pages/admin/ResellersList';
+import { ResellerPipeline } from './pages/admin/ResellerPipeline';
 import { ResellerDashboard } from './pages/reseller/ResellerDashboard';
 import { AvailableKits } from './pages/reseller/AvailableKits';
 import { LeadCRM } from './pages/reseller/LeadCRM';
+import { Profile } from './pages/Profile';
 import { UserProfile } from './types';
 
 // Protected Route Wrapper
-const ProtectedRoute = ({ 
-  children, 
-  user, 
-  allowedRoles 
-}: { 
-  children: React.ReactNode, 
-  user: UserProfile | null, 
-  allowedRoles: string[] 
+const ProtectedRoute = ({
+  children,
+  user,
+  allowedRoles
+}: {
+  children: React.ReactNode,
+  user: UserProfile | null,
+  allowedRoles?: string[] // Optional now for shared routes
 }) => {
   if (!user) {
     return <Navigate to="/" replace />;
   }
-  if (!allowedRoles.includes(user.role)) {
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
     // Redirect based on actual role if they try to access wrong portal
     return <Navigate to={user.role === 'admin' ? '/admin/dashboard' : '/reseller/dashboard'} replace />;
   }
@@ -58,14 +61,23 @@ const App: React.FC = () => {
     <HashRouter>
       <Routes>
         {/* Public Route */}
-        <Route 
-          path="/" 
+        <Route
+          path="/"
           element={
-            user 
-              ? <Navigate to={user.role === 'admin' ? '/admin/dashboard' : '/reseller/dashboard'} replace /> 
+            user
+              ? <Navigate to={user.role === 'admin' ? '/admin/dashboard' : '/reseller/dashboard'} replace />
               : <Login onLogin={handleLogin} />
-          } 
+          }
         />
+
+        {/* Shared Routes (Profile) */}
+        <Route path="/profile" element={
+          <ProtectedRoute user={user}>
+            <Layout role={user?.role || 'reseller'} onLogout={handleLogout}>
+              <Profile />
+            </Layout>
+          </ProtectedRoute>
+        } />
 
         {/* Admin Routes */}
         <Route path="/admin/*" element={
@@ -74,7 +86,8 @@ const App: React.FC = () => {
               <Routes>
                 <Route path="dashboard" element={<AdminDashboard />} />
                 <Route path="kits" element={<KitManagement />} />
-                <Route path="resellers" element={<div className="text-white">Reseller Management Logic Placeholder</div>} />
+                <Route path="resellers" element={<ResellersList />} />
+                <Route path="pipeline" element={<ResellerPipeline />} />
                 <Route path="*" element={<Navigate to="dashboard" replace />} />
               </Routes>
             </Layout>

@@ -21,7 +21,7 @@ export const ResellerDashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <p className="text-zinc-400 text-sm font-medium">My Commissions</p>
-          <p className="text-3xl font-bold text-white mt-2">${MOCK_STATS_RESELLER.totalRevenue.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-white mt-2">R{MOCK_STATS_RESELLER.totalRevenue.toLocaleString()}</p>
         </Card>
         <Card>
           <p className="text-zinc-400 text-sm font-medium">Active Deals</p>
@@ -51,7 +51,7 @@ export const ResellerDashboard: React.FC = () => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                   contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', color: '#f4f4f5' }}
                   itemStyle={{ color: '#f4f4f5' }}
                 />
@@ -61,18 +61,18 @@ export const ResellerDashboard: React.FC = () => {
         </Card>
 
         <Card>
-           <h3 className="text-lg font-semibold text-white mb-4">Recent Activity</h3>
-           <div className="space-y-4">
-             {[1, 2, 3].map((i) => (
-               <div key={i} className="flex items-center gap-4 p-3 rounded-lg hover:bg-zinc-800/30 transition-colors border border-transparent hover:border-zinc-800">
-                 <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                 <div className="flex-1">
-                   <p className="text-sm text-white">Application submitted for Alpha Kit</p>
-                   <p className="text-xs text-zinc-500">2 hours ago</p>
-                 </div>
-               </div>
-             ))}
-           </div>
+          <h3 className="text-lg font-semibold text-white mb-4">Recent Activity</h3>
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center gap-4 p-3 rounded-lg hover:bg-zinc-800/30 transition-colors border border-transparent hover:border-zinc-800">
+                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                <div className="flex-1">
+                  <p className="text-sm text-white">Application submitted for Alpha Kit</p>
+                  <p className="text-xs text-zinc-500">2 hours ago</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </Card>
       </div>
     </div>
