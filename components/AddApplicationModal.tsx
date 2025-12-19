@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase } from '../../services/supabase';
+import { supabase } from '@/services/supabase';
 import { Button } from './ui/Button';
 import { X } from 'lucide-react';
 
